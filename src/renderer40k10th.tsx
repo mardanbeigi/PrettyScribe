@@ -16,7 +16,7 @@
 
 import {Renderer} from "./renderer";
 import {Wh40k} from "./roster40k10th";
-import {addHideAble, toggleHidden} from "./html/hideable"
+import {toggleHidden} from "./html/hideable"
 import {loadOptionsFromLocalStorage, renderCheckboxOption, renderOptionsToggle, saveOptionToLocalStorage} from "./html/options";
 import {PsJsx} from './html/jsx';
 
@@ -387,7 +387,7 @@ export class Wh40kRenderer implements Renderer {
             for (const unit of force._units) {
                 for (const abilities of Object.values(unit._abilities)) {
                     for (const [ability, description] of abilities.entries()) {
-                        const matches = [...description.matchAll(/(?:before the first turn begins|set up|Reinforcements|(?:Command|Movement|Psychic|Shooting|Charge|Fight|Morale) phase)/ig)];
+                        const matches = [...description.matchAll(/(?:before the first turn begins|set up|Reinforcements|(?:Command|Movement|Psychic|Shooting|Charge|Fight|Morale) phase)|end of your (opponent's)? turn/ig)];
                         if (matches.length === 0) continue;
 
                         // Create a div with the ability, to highlight the phase in
@@ -425,6 +425,10 @@ export class Wh40kRenderer implements Renderer {
                                 case 'reinforcements':
                                     phase = 'movement phase';
                                     break;
+                                case 'end of your turn':
+                                case 'end of your opponent\'s turn':
+                                    phase = 'end of turn';
+                                    break;
                             }
 
                             // ignore other phase mentions
@@ -434,7 +438,7 @@ export class Wh40kRenderer implements Renderer {
 
                             const textIndex = match.index - (description.length - text.length);
                             if (textIndex > 0) {
-                                abilityDiv.appendChild(document.createTextNode(text.substring(0, textIndex)));
+                                abilityDiv.appendChild(parseFormattedText(text.substring(0, textIndex)));
                             }
 
                             const phaseAbilities = allPhaseAbilities[phase] = allPhaseAbilities[phase] || [];
@@ -451,14 +455,14 @@ export class Wh40kRenderer implements Renderer {
                             text = text.substring(newOffset);
                         }
                         if (text.length > 0) {
-                            abilityDiv.appendChild(document.createTextNode(text));
+                            abilityDiv.appendChild(parseFormattedText(text));
                         }
                     }
                 }
             }
         }
 
-        const sortedPhases = ['pre-game phase', 'command phase', 'movement phase', 'psychic phase', 'shooting phase', 'charge phase', 'fight phase', 'morale phase']
+        const sortedPhases = ['pre-game phase', 'command phase', 'movement phase', 'shooting phase', 'charge phase', 'fight phase', 'morale phase', 'end of turn']
            .filter(phase => !!allPhaseAbilities[phase]);
 
         // Options will allow user to toggle this on.
@@ -635,7 +639,7 @@ export class Wh40kRenderer implements Renderer {
             {Array.from(abilitiesMap.keys()).sort(Wh40k.Compare).map(ability =>
                 <tr className='hide_able'><td scope="col" style="width: 100%;"><div><div className="hide_able">
                     <b>{`${ability.toUpperCase()}: `}</b>
-                    {abilitiesMap.get(ability) || '??'}
+                    {parseFormattedText(abilitiesMap.get(ability) || '??')}
                 </div></div></td></tr>)}
         </tbody>
         </>
@@ -671,7 +675,7 @@ export class Wh40kRenderer implements Renderer {
                 <h3>{subFaction}</h3>
                 {Array.from(rules.entries()).map((rule) => <div className='hide_able'>
                     <b>{rule[0]}</b>
-                    <p>{rule[1]}</p>
+                    <p>{parseFormattedText(rule[1] || '')}</p>
                 </div>)}
             </div>)}
         </>;
@@ -694,4 +698,36 @@ export class Wh40kRenderer implements Renderer {
 function mergeRules(ruleGroups: Map<string, Map<string, string | null>>, groupName: string, rulesToAdd: Map<string, string | null>) {
     if (rulesToAdd.size === 0) return;
     ruleGroups.set(groupName, new Map([...ruleGroups.get(groupName) || [], ...rulesToAdd]));
+}
+
+/** Parses **bold** and ^^bold-italic^^ markers and newlines into DOM nodes. */
+function parseFormattedText(text: string): DocumentFragment {
+    const fragment = document.createDocumentFragment();
+    const regex = /\*\*([^*]+)\*\*|\^\^([^\^]+)\^\^|\n/g;
+    let lastIndex = 0;
+    let match: RegExpExecArray | null;
+
+    while ((match = regex.exec(text)) !== null) {
+        if (match.index > lastIndex) {
+            fragment.appendChild(document.createTextNode(text.slice(lastIndex, match.index)));
+        }
+        if (match[0] === '\n') {
+            fragment.appendChild(document.createElement('br'));
+        } else if (match[1] !== undefined) {
+            // **bold** — recurse so nested ^^...^^ inside bold is also processed
+            const b = document.createElement('b');
+            b.appendChild(parseFormattedText(match[1]));
+            fragment.appendChild(b);
+        } else if (match[2] !== undefined) {
+            const i = document.createElement('i');
+            i.textContent = match[2];
+            fragment.appendChild(i);
+        }
+        lastIndex = regex.lastIndex;
+    }
+
+    if (lastIndex < text.length) {
+        fragment.appendChild(document.createTextNode(text.slice(lastIndex)));
+    }
+    return fragment;
 }
