@@ -154,6 +154,14 @@ function parseBattleScribeXML(xmldata: string) {
       console.log(roster);
       renderMESBG(roster, rosterTitle, rosterList, forceUnits);
     }
+  } else if (gameSystemId === "sys-352e-adc2-7639-d610") {
+    // Warhammer 40,000 11th Edition
+    const roster = Wh40k.CreateRoster(doc);
+    (window as any).roster = roster;
+    if (roster && roster._forces.length > 0) {
+      const renderer: Wh40kRenderer = new Wh40kRenderer(roster);
+      renderer.render(rosterTitle, rosterList, forceUnits);
+    }
   } else {
     showErrorModal('PrettyScribe does not support game type \'' + (gameType || gameSystemId) + '\'.');
   }
@@ -246,7 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // iPhone and iPad devices don't support extensions on the accept attribute
     // for input type=file (https://caniuse.com/input-file-accept). If set, they
     // will not allow any file to be selected, so remove the attribute.
-    const inputEl = document.querySelector('input[type="file"');
+    const inputEl = document.querySelector('input[type="file"]');
     inputEl?.removeAttribute('accept');
   }
 });
