@@ -122,6 +122,111 @@ label {
     border-bottom: 1px solid #8a7c32;;
 }
 
+/* AoS 4.0 Styles */
+.aos4_unit {
+    break-inside: avoid;
+}
+
+.aos4_font {
+    font-size: 14px;
+    font-family: 'Crimson Pro', serif;
+}
+
+.aos4_unit_stats {
+    background-image: url('../assets/aos_stats_4.svg');
+    background-repeat: no-repeat;
+    background-size: contain;
+    display: inline-block;
+    position: relative;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.aos4_unit_stats::after {
+    padding-top: 100%;
+    display: block;
+    content: '';
+}
+
+.aos4_manifestation_stats {
+    background-image: url('../assets/aos_spell_4.svg');
+    background-repeat: no-repeat;
+    background-size: contain;
+    display: inline-block;
+    position: relative;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.aos4_manifestation_stats::after {
+    padding-top: 100%;
+    display: block;
+    content: '';
+}
+
+.aos4_stat_move {
+    position: absolute;
+    top: 25%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.aos4_stat_health {
+    position: absolute;
+    top: 50%;
+    left: 25%;
+    transform: translate(-50%, -50%);
+}
+
+.aos4_stat_save {
+    position: absolute;
+    top: 50%;
+    left: 75%;
+    transform: translate(-50%, -50%);
+}
+
+.aos4_stat_control {
+    position: absolute;
+    top: 75%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.aos4_light {
+    background-color: #e8e3ca;
+}
+
+.aos4_medium {
+    background-color: #d1c89a;
+}
+
+.aos4_dark {
+    background-color: #8a7c32;
+}
+
+.aos4_table {
+    border-top: 1px solid #8a7c32;
+    border-bottom: 1px solid #8a7c32;
+}
+
+.aos4_ability_card {
+    border: 1px solid #d1c89a;
+    border-radius: 4px;
+    padding: 8px;
+    margin-bottom: 8px;
+    background-color: #faf8f0;
+}
+
+.aos4_ability_name {
+    border-bottom: 1px solid #d1c89a;
+    padding-bottom: 4px;
+    margin-bottom: 4px;
+}
+
+.aos4_ability_field {
+    margin-bottom: 4px;
+}
+
 .warcry_unit {
     break-inside: avoid;
 }
@@ -197,14 +302,6 @@ label {
     padding: 0 10px 0 5px;
 }
 
-.wh40k_unit_sheet.bigger {
-    width: 800px;
-}
-
-.wh40k_unit_sheet:not(.bigger) {
-    width: 1110px;
-}
-
 .wh40k_unit_sheet > table {
     --borderColor: black;
     --notchSize: 0.8em;
@@ -227,6 +324,60 @@ label {
             0% calc(100% - var(--notchSize))
     );
 }
+
+/* Desktop */
+@media only screen and (width > 768px) {
+    .mobile-only {
+        display: none;
+    }
+
+    .wh40k_unit_sheet.bigger {
+        width: 800px;
+    }
+    
+    .wh40k_unit_sheet:not(.bigger) {
+        width: 1110px;
+    }
+}
+
+@media print {
+    .mobile-only {
+        display: none;
+    }
+
+    .wh40k_unit_sheet.bigger {
+        width: 800px;
+    }
+    
+    .wh40k_unit_sheet:not(.bigger) {
+        width: 1110px;
+    }
+}
+
+/* Mobile */
+@media only screen and (width <= 768px) {
+    .desktop-only {
+        display: none;
+    }
+
+    .wh40k_unit_sheet {
+        padding: 0px;
+    }
+
+    .container-fluid {
+        --bs-gutter-x: 0px;
+    }
+
+    .wh40k_unit_sheet > table {
+        --notchSize: 0.4em;
+    }
+
+    /* Some special profile tables will have long names, so allow wrapping. */
+    .wh40k_unit_sheet table > thead > tr.header_row > th {
+        white-space: normal;
+    }
+}
+
 
 .wh40k_unit_sheet > .table > thead:not(:first-child) > :last-child > * {
     border-top-color: currentColor;
@@ -376,33 +527,232 @@ label {
     margin-top: -1px; /* not sure why this is necessary */
 }
 
-body.single_column .wh40k_unit_sheet > table > * > * > td.subTableTd > div {
-    flex-direction: column;
-}
-
-
 .wh40k_unit_sheet > table > * > * > td.subTableTd > div > table {
     margin-bottom: 0;
 }
 
-body:not(.single_column) .wh40k_unit_sheet > table > * > * > td.subTableTd > div > table:first-child {
+body.single_column .wh40k_unit_sheet > table > * > * > td.subTableTd > div {
+    flex-direction: column;
+}
+
+/* Mobile */
+@media only screen and (width <= 768px) {
+    body .wh40k_unit_sheet > table > * > * > td.subTableTd > div {
+        flex-direction: column;
+    }
+}
+
+body .wh40k_unit_sheet > table > * > * > td.subTableTd > div > *:first-child {
     border-right: 1px solid black;
     width: 60%;
 }
 
-body.single_column .wh40k_unit_sheet > table > * > * > td.subTableTd > div > table:last-child {
-    border-top: 1px solid black;
+body.single_column .wh40k_unit_sheet > table > * > * > td.subTableTd > div > *:first-child {
+    border-right: 0px solid black;
+    width: 100%;
 }
 
-body:not(.single_column) .wh40k_unit_sheet > table > * > * > td.subTableTd > div > table:last-child {
-    border-left: 1px solid black;
+/* Mobile */
+@media only screen and (width <= 768px) {
+    body .wh40k_unit_sheet > table > * > * > td.subTableTd > div > *:first-child {
+        border-right: 0px solid black;
+        width: 100%;
+    }    
+}
+
+body .wh40k_unit_sheet > table > * > * > td.subTableTd > div > table:last-child {
+    border-left: 1px solid black; /* for double-column layout */
     margin-left: -1px; /* counter overlap between left and right columns' shared border */
     width: 40%;
+}
+
+body.single_column .wh40k_unit_sheet > table > * > * > td.subTableTd > div > table:last-child {
+    border-top: 1px solid black;
+    border-left: unset;
+    margin-left: unset;
+    width: 100%;
+}
+
+/* Mobile */
+@media only screen and (width <= 768px) {
+    body .wh40k_unit_sheet > table > * > * > td.subTableTd > div > table:last-child {
+        border-top: 1px solid black;
+        border-left: unset;
+        margin-left: unset;
+        width: 100%;
+    }    
 }
 
 .wh40k_rules > div > p {
     white-space: pre-wrap;
     line-height: 1;
+}
+
+.wh40k_unit_profile_table,
+.wh40k_weapon_profile_table {
+    width: 100%;
+}
+
+.wh40k_unit_profile_table > div,
+.wh40k_weapon_profile_table > div {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.wh40k_unit_profile_table > div:nth-of-type(odd),
+.wh40k_weapon_profile_table > div:nth-of-type(odd) {
+    background-color: var(--bs-table-striped-bg);
+}
+
+.wh40k_unit_profile_table > div:first-child,
+.wh40k_weapon_profile_table > div:first-child {
+    background-color: var(--bs-table-active-bg);
+    text-transform: uppercase;
+    white-space: nowrap;
+    font-weight: bold;
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
+}
+
+.wh40k_unit_profile_table:first-child > div:first-child,
+.wh40k_weapon_profile_table:first-child > div:first-child {
+    border-top: 0px;
+}
+
+.wh40k_unit_profile_table > div:not(:first-child),
+.wh40k_weapon_profile_table > div:not(:first-child) {
+    border-bottom: 1px solid var(--bs-table-active-bg);
+}
+
+.wh40k_unit_profile_table > div:first-child > div,
+.wh40k_weapon_profile_table > div:first-child > div {
+    padding: 0.25rem 0;
+}
+
+.wh40k_unit_profile_table > div:not(:first-child) > div,
+.wh40k_weapon_profile_table > div:not(:first-child) > div {
+    padding: 0.05rem 0;
+}
+
+.wh40k_unit_profile_table > div > div,
+.wh40k_weapon_profile_table > div > div {
+    flex-basis: 5%;
+}
+
+.wh40k_unit_profile_table > div > div:first-child {
+    flex-basis: 40%;
+    padding-left: var(--notchSize);
+}
+
+.wh40k_weapon_profile_table > div > div:first-child {
+    flex-basis: 30%;
+    padding-left: var(--notchSize);
+}
+
+.wh40k_weapon_profile_table > div > div:nth-child(2),
+.wh40k_weapon_profile_table > div > div:nth-child(3) {
+    flex-basis: 10%;
+}
+
+.wh40k_weapon_profile_table > div > div:last-child {
+    flex-basis: 30%;
+}
+
+.wh40k_unit_profile_table > div > div:not(:first-child),
+.wh40k_weapon_profile_table > div > div:not(:first-child):not(:last-child) {
+    text-align: center;
+}
+
+/* Mobile */
+@media only screen and (width <= 768px) {
+    .wh40k_unit_profile_table > div > div,
+    .wh40k_weapon_profile_table > div > div {
+        flex-basis: 8%;
+        flex-shrink: 0;
+    }
+    
+    .wh40k_unit_profile_table > div > div:first-child,
+    .wh40k_weapon_profile_table > div > div:first-child {
+        /* Leave some space for long attributes like D6+3 in other columns */
+        flex-basis: 46%;
+    }
+        
+    .wh40k_weapon_profile_table > div > div:nth-child(2) {
+        flex-basis: 12%;
+    }
+
+    .wh40k_weapon_profile_table > div > div:nth-child(3) {
+        flex-basis: 8%;
+    }
+    
+    .wh40k_weapon_profile_table > div:first-child > div:last-child {
+        display: none;  /* Hide the Keywords column */
+    }
+
+    .wh40k_weapon_profile_table > div > div:last-child {
+        flex-basis: 100%;
+        font-style: italic;
+        padding-left: calc(2 * var(--notchSize));
+    }
+}
+
+.wh40k_keywords_and_factions,
+.wh40k_keywords,
+.wh40k_factions {
+    display: flex;
+}
+
+.wh40k_keywords > div,
+.wh40k_factions > div {
+    display: inline;
+}
+
+.wh40k_keywords > div:last-child,
+.wh40k_factions > div:last-child {
+    font-weight: normal;
+}
+
+.wh40k_keywords_and_factions {
+    display: flex;
+}
+.wh40k_keywords {
+    flex-basis: 70%;
+}
+.wh40k_factions {
+    flex-basis: 30%;
+}
+
+.wh40k_keywords > div:first-child {
+    flex-basis: 13.5%;
+}
+.wh40k_keywords > div:last-child {
+    flex-basis: 86%
+}
+.wh40k_factions > div:first-child {
+    flex-basis: 33%;
+}
+.wh40k_factions > div:last-child {
+    flex-basis: 67%;
+}
+.wh40k_keywords > div:first-child,
+.wh40k_factions > div:first-child {
+    /* Improves "KEYWORDS" for "Print: Larger Text" */
+    padding-right: 3px;
+}
+
+/* Mobile */
+@media only screen and (width <= 768px) {
+    .wh40k_keywords_and_factions {
+        display: block;
+    }
+    .wh40k_keywords > div:first-child,
+    .wh40k_factions > div:first-child {
+        flex-basis: 25%;
+    }
+    .wh40k_keywords > div:last-child,
+    .wh40k_factions > div:last-child {
+        flex-basis: 75%;
+    }
 }
 
 /* MESBG Start */
@@ -580,6 +930,197 @@ body:not(.single_column) .wh40k_unit_sheet > table > * > * > td.subTableTd > div
 
 .hh2-rule-link {
     color: black;
+}
+
+/* HH3 Styles */
+.hh3-rule-link {
+    color: #2c3e50;
+    text-decoration: none;
+    border-bottom: 1px dotted #7f8c8d;
+    transition: color 0.15s, border-color 0.15s;
+}
+.hh3-rule-link:hover {
+    color: #8b0000;
+    border-bottom-color: #8b0000;
+}
+
+.hh3_force_header {
+    font-size: 1.1em;
+    font-weight: 600;
+    color: #2c3e50;
+    border-left: 4px solid #8b0000;
+    padding: 0.4em 0.8em;
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+    background: linear-gradient(90deg, rgba(139,0,0,0.06) 0%, transparent 100%);
+}
+
+.hh3_force_header .hh3_detachment_name {
+    display: block;
+    font-size: 0.85em;
+    font-weight: 400;
+    color: #555;
+    margin-top: 0.15em;
+}
+
+.hh3_section_label {
+    font-size: 0.75em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #555;
+    padding: 0.35em 0.5em;
+}
+
+.hh3_reaction_card {
+    background: #fafafa;
+    border-left: 3px solid #6c757d;
+    padding: 0.5em 0.75em;
+    margin-bottom: 0.5em;
+}
+
+.hh3_reaction_card .hh3_reaction_name {
+    font-weight: 700;
+    font-size: 0.95em;
+    color: #2c3e50;
+    margin-bottom: 0.3em;
+}
+
+.hh3_reaction_card .hh3_reaction_summary {
+    font-style: italic;
+    color: #555;
+    margin-bottom: 0.4em;
+    font-size: 0.9em;
+}
+
+.hh3_reaction_card .hh3_reaction_field {
+    margin-bottom: 0.25em;
+    font-size: 0.88em;
+    line-height: 1.35;
+}
+
+.hh3_reaction_card .hh3_reaction_field b {
+    color: #444;
+    font-size: 0.9em;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.hh3_gambit_card {
+    background: #fdfaf3;
+    border-left: 3px solid #b8860b;
+    padding: 0.5em 0.75em;
+    margin-bottom: 0.5em;
+}
+
+.hh3_gambit_card .hh3_gambit_name {
+    font-weight: 700;
+    font-size: 0.95em;
+    color: #2c3e50;
+    margin-bottom: 0.3em;
+}
+
+.hh3_gambit_card .hh3_gambit_summary {
+    font-style: italic;
+    color: #555;
+    margin-bottom: 0.3em;
+    font-size: 0.9em;
+}
+
+.hh3_gambit_card .hh3_gambit_description {
+    font-size: 0.88em;
+    line-height: 1.35;
+}
+
+.hh3_wargear_summary {
+    font-style: italic;
+    color: #555;
+    font-size: 0.9em;
+}
+
+.hh3_wargear_description {
+    font-size: 0.88em;
+    line-height: 1.35;
+}
+
+.hh3_keywords_row {
+    font-size: 0.85em;
+}
+
+.hh3_keywords_label {
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #444;
+    vertical-align: top;
+}
+
+.hh3_keywords_value {
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.hh3_model_list_row {
+    font-size: 0.88em;
+    line-height: 1.5;
+}
+
+.hh3_roster_summary_table {
+    font-size: 0.9em;
+}
+
+.hh3_roster_summary_table thead th {
+    font-size: 0.8em;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #555;
+}
+
+.hh3_rules_section {
+    line-height: 1.3;
+}
+
+.hh3_rules_section h3 {
+    font-size: 1.15em;
+    font-weight: 600;
+    color: #2c3e50;
+    border-bottom: 2px solid #dee2e6;
+    padding-bottom: 0.3em;
+    margin-bottom: 0.6em;
+}
+
+.hh3_rules_section > div {
+    margin-bottom: 0.6em;
+}
+
+.hh3_rules_section > div > b {
+    color: #2c3e50;
+}
+
+.hh3_rules_section > div > p {
+    white-space: pre-wrap;
+    line-height: 1.3;
+    margin-bottom: 0;
+    font-size: 0.9em;
+}
+
+@media print {
+    .hh3_force_header {
+        border-left-color: #333;
+        background: none;
+    }
+    .hh3_reaction_card {
+        background: none;
+        border-left-color: #999;
+    }
+    .hh3_gambit_card {
+        background: none;
+        border-left-color: #999;
+    }
+    .hh3-rule-link {
+        color: black;
+        border-bottom-style: none;
+    }
 }
 
 .hide_enabled .hide_able:hover {

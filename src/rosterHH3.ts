@@ -1,52 +1,58 @@
 /*
-    Copyright 2022-23 Rick Weyrauch,
+    Copyright 2022-26 Rick Weyrauch,
 
-    Permission to use, copy, modify, and/or distribute this software for any purpose 
+    Permission to use, copy, modify, and/or distribute this software for any purpose
     with or without fee is hereby granted, provided that the above copyright notice
     and this permission notice appear in all copies.
 
-    THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH 
-    REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND 
-    FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, 
-    INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS 
-    OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER 
-    TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE 
+    THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+    REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
+    FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+    INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS
+    OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
+    TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE
     OF THIS SOFTWARE.
 */
 import * as _ from "lodash";
 
-export namespace HorusHeresy {
-
-    type WeaponStrength = number | string;
+export namespace HorusHeresy3 {
 
     export enum UnitRole {
         NONE,
 
-        HQ,
-        TR,
-        EL,
-        FA,
-        HS,
-        FL,
-        DT,
-        FT,
-        LW,
-        PR,
+        HIGH_COMMAND,
+        COMMAND,
+        TROOPS,
+        ELITES,
+        FAST_ATTACK,
+        HEAVY_ASSAULT,
+        SUPPORT,
+        RECON,
+        RETINUE,
+        TRANSPORT,
+        HEAVY_TRANSPORT,
+        WAR_ENGINE,
+        ARMOUR,
+        REWARDS_OF_TREACHERY,
     }
 
     export const UnitRoleToString: string[] = [
         'None',
 
-        'HQ',
+        'High Command',
+        'Command',
         'Troops',
         'Elites',
         'Fast Attack',
-        'Heavy Support',
-        'Flyer',
-        'Dedicated Transport',
-        'Fortification',
-        'Lord of War',
-        'Primarch',
+        'Heavy Assault',
+        'Support',
+        'Recon',
+        'Retinue',
+        'Transport',
+        'Heavy Transport',
+        'War-engine',
+        'Armour',
+        'Rewards of Treachery',
     ];
 
     export class BaseNote {
@@ -86,49 +92,86 @@ export namespace HorusHeresy {
         }
     }
 
-    export class Weapon extends Upgrade {
+    export class RangedWeapon extends Upgrade {
         _selectionName: string = "";
-        _range: string = "Melee";
-        _str: WeaponStrength = "user";
+        _range: string = "";
+        _fp: string = "";
+        _rs: string = "";
         _ap: string = "";
-        _type: string = "Melee";
+        _damage: string = "";
+        _specialRules: string = "";
+        _traits: string = "";
 
-        getRules(): string[] {
-            let rules = this._type.split(',');
-            if (rules.length > 0) {
-                rules = rules.slice(1).map(rule => rule.trim());
-            }
-            return rules;
+        getSpecialRules(): string[] {
+            if (!this._specialRules || this._specialRules === '-') return [];
+            return this._specialRules.split(',').map(rule => rule.trim());
         }
+    }
+
+    export class MeleeWeapon extends Upgrade {
+        _selectionName: string = "";
+        _im: string = "";
+        _am: string = "";
+        _sm: string = "";
+        _ap: string = "";
+        _damage: string = "";
+        _specialRules: string = "";
+        _traits: string = "";
+
+        getSpecialRules(): string[] {
+            if (!this._specialRules || this._specialRules === '-') return [];
+            return this._specialRules.split(',').map(rule => rule.trim());
+        }
+    }
+
+    export class WargearItem extends Upgrade {
+        _summary: string = "";
+    }
+
+    export class Reaction extends Upgrade {
+        _summary: string = "";
+        _trigger: string = "";
+        _reactionCost: string = "";
+        _target: string = "";
+        _process: string = "";
+    }
+
+    export class Gambit extends Upgrade {
+        _summary: string = "";
+    }
+
+    export class TraitItem extends Upgrade {
     }
 
     export class BaseModel extends BaseNote {
         _count: number = 0;
         _type: string = "";
 
-        _weapons: Weapon[] = [];
+        _rangedWeapons: RangedWeapon[] = [];
+        _meleeWeapons: MeleeWeapon[] = [];
         _upgrades: Upgrade[] = [];
-        _wargear: Upgrade[] = [];
+        _wargear: WargearItem[] = [];
 
-        _warlordTraits: Upgrade[] = [];
-        _reactions: Upgrade[] = [];
-
-        _psychicWeapons: Weapon[] = [];
-        _psychicPowers: Upgrade[] = [];
+        _reactions: Reaction[] = [];
+        _gambits: Gambit[] = [];
 
         equal(model: BaseModel | null): boolean {
             if (model == null) return false;
 
             if ((this._name === model._name) &&
                 (this._count === model._count) &&
-                (this._weapons.length === model._weapons.length) &&
+                (this._rangedWeapons.length === model._rangedWeapons.length) &&
+                (this._meleeWeapons.length === model._meleeWeapons.length) &&
                 (this._upgrades.length === model._upgrades.length) &&
-                (this._wargear.length === model._wargear.length) &&
-                (this._psychicWeapons.length === model._psychicWeapons.length) &&
-                (this._psychicPowers.length === model._psychicPowers.length)) {
+                (this._wargear.length === model._wargear.length)) {
 
-                for (let wi = 0; wi < this._weapons.length; wi++) {
-                    if (!this._weapons[wi].equal(model._weapons[wi])) {
+                for (let wi = 0; wi < this._rangedWeapons.length; wi++) {
+                    if (!this._rangedWeapons[wi].equal(model._rangedWeapons[wi])) {
+                        return false;
+                    }
+                }
+                for (let wi = 0; wi < this._meleeWeapons.length; wi++) {
+                    if (!this._meleeWeapons[wi].equal(model._meleeWeapons[wi])) {
                         return false;
                     }
                 }
@@ -142,16 +185,6 @@ export namespace HorusHeresy {
                         return false;
                     }
                 }
-                for (let wi = 0; wi < this._psychicWeapons.length; wi++) {
-                    if (!this._psychicWeapons[wi].equal(model._psychicWeapons[wi])) {
-                        return false;
-                    }
-                }
-                for (let wi = 0; wi < this._psychicPowers.length; wi++) {
-                    if (!this._psychicPowers[wi].equal(model._psychicPowers[wi])) {
-                        return false;
-                    }
-                }
 
                 return true;
             }
@@ -161,8 +194,8 @@ export namespace HorusHeresy {
         nameAndGear(): string {
             let name = super.name();
 
-            if (this._weapons.length > 0 || this._upgrades.length > 0) {
-                const gear = this.getDedupedWeaponsAndUpgrades();
+            const gear = this.getDedupedWeaponsAndUpgrades();
+            if (gear.length > 0) {
                 name += ` (${gear.map(u => u.toString()).join(', ')})`;
             }
             return name;
@@ -170,7 +203,7 @@ export namespace HorusHeresy {
 
         getDedupedWeaponsAndUpgrades(): Upgrade[] {
             const deduped: Upgrade[] = [];
-            for (const upgrade of [...this._weapons, ...this._upgrades]) {
+            for (const upgrade of [...this._rangedWeapons, ...this._meleeWeapons, ...this._upgrades]) {
                 if (!deduped.some(e => upgrade.selectionName() === e.selectionName())) {
                     deduped.push(upgrade);
                 }
@@ -179,17 +212,15 @@ export namespace HorusHeresy {
         }
 
         normalize(): void {
-            this._weapons.sort(CompareWeapon);
+            this._rangedWeapons.sort(CompareObj);
+            this._meleeWeapons.sort(CompareObj);
             this._upgrades.sort(CompareObj);
             this._wargear.sort(CompareObj);
-            this._psychicPowers.sort(CompareObj);
-            this._psychicWeapons.sort(CompareWeapon);
 
-            this.normalizeUpgrades(this._weapons);
+            this.normalizeUpgrades(this._rangedWeapons);
+            this.normalizeUpgrades(this._meleeWeapons);
             this.normalizeUpgrades(this._upgrades);
             this.normalizeUpgrades(this._wargear);
-            this.normalizeUpgrades(this._psychicPowers);
-            this.normalizeUpgrades(this._psychicWeapons);
         }
 
         normalizeUpgrades(upgrades: Upgrade[]) {
@@ -203,7 +234,7 @@ export namespace HorusHeresy {
                 }
             }
             for (let upgrade of upgrades) {
-                if (upgrade._count % this._count == 0) {
+                if (this._count > 0 && upgrade._count % this._count == 0) {
                     upgrade._count /= this._count;
                     upgrade._cost._points /= this._count;
                 }
@@ -236,34 +267,11 @@ export namespace HorusHeresy {
         _initiative: number = 1;
         _attacks: number = 1;
         _leadership: number = 7;
+        _cool: number = 7;
+        _willpower: number = 7;
+        _intelligence: number = 7;
         _save: string = "3+";
-    };
-
-    export class Knight extends BaseModel {
-
-        // Characteristics
-        _move: string | number = 8;
-        _ws: number = 4;
-        _bs: number = 4;
-        _str: number = 4;
-        _front: number = 4;
-        _side: number = 4;
-        _rear: number = 4;
-        _initiative: number = 1;
-        _attacks: number = 1;
-        _hp: number = 1;
-    }
-
-    export class Fortification extends BaseModel {
-
-        // Characteristics
-        _bs: number | string = "-";
-        _front: number = 0;
-        _side: number = 0;
-        _rear: number = 0;
-        _hp: number = 1;
-        _capacity: number | string = "-";
-        _firePoints: number | string = "-";
+        _invuln: string = "-";
     };
 
     export class Unit extends BaseNote {
@@ -277,14 +285,13 @@ export namespace HorusHeresy {
         readonly _modelStats: BaseModel[] = [];
         _modelList: string[] = [];
 
-        _weapons: Weapon[] = [];
+        _rangedWeapons: RangedWeapon[] = [];
+        _meleeWeapons: MeleeWeapon[] = [];
         _upgrades: Upgrade[] = [];
-        _wargear: Upgrade[] = [];
-        _psychicWeapons: Weapon[] = [];
-        _psychicPowers: Upgrade[] = [];
+        _wargear: WargearItem[] = [];
 
-        _warlordTraits: Upgrade[] = [];
-        _reactions: Upgrade[] = [];
+        _reactions: Reaction[] = [];
+        _gambits: Gambit[] = [];
 
         _points: number = 0;
 
@@ -348,67 +355,47 @@ export namespace HorusHeresy {
             this._modelList = this._models.map(model => (model._count > 1 ? `${model._count}x ` : '') + model.nameAndGear());
         }
 
-        weapons(): Weapon[] {
-            // List all model weapons.
-            let allWeapons = this._models.map(m => m._weapons).reduce((acc, val) => acc.concat(val), []);
-            allWeapons.push(...this._weapons);
-            // Return the unique weapon list.
-            return allWeapons.sort(CompareWeapon).filter((weap, i, array) => weap.name() !== array[i - 1]?.name());
+        rangedWeapons(): RangedWeapon[] {
+            let allWeapons = this._models.map(m => m._rangedWeapons).reduce((acc, val) => acc.concat(val), []);
+            allWeapons.push(...this._rangedWeapons);
+            return allWeapons.sort(CompareObj).filter((weap, i, array) => weap.name() !== array[i - 1]?.name());
         }
 
-        psychicWeapons(): Weapon[] {
-            // List all model psychic weapons.
-            let allWeapons = this._models.map(m => m._psychicWeapons).reduce((acc, val) => acc.concat(val), []);
-            allWeapons.push(...this._psychicWeapons);
-            // Return the unique weapon list.
-            return allWeapons.sort(CompareWeapon).filter((weap, i, array) => weap.name() !== array[i - 1]?.name());
+        meleeWeapons(): MeleeWeapon[] {
+            let allWeapons = this._models.map(m => m._meleeWeapons).reduce((acc, val) => acc.concat(val), []);
+            allWeapons.push(...this._meleeWeapons);
+            return allWeapons.sort(CompareObj).filter((weap, i, array) => weap.name() !== array[i - 1]?.name());
         }
 
-        psychicPowers(): Upgrade[] {
-            // List all model psychic powers.
-            let allPowers = this._models.map(m => m._psychicPowers).reduce((acc, val) => acc.concat(val), []);
-            allPowers.push(...this._psychicPowers);
-            // Return the unique list.
-            return allPowers.sort(CompareObj).filter((power, i, array) => power.name() !== array[i - 1]?.name());
-        }
-
-        wargear(): Upgrade[] {
-            // List all model wargear items.
+        wargear(): WargearItem[] {
             let allGear = this._models.map(m => m._wargear).reduce((acc, val) => acc.concat(val), []);
             allGear.push(...this._wargear);
-            // Return the unique list.
             return allGear.sort(CompareObj).filter((gear, i, array) => gear.name() !== array[i - 1]?.name());
         }
 
-        weaponRules(): string[] {
-            const allWeapons = this.weapons();
-            let allRules: string[] = [];
-            allRules = allWeapons.map(m => m.getRules()).reduce((acc, val) => acc.concat(val), []);
-            return allRules.sort().filter((rule, i, rules) => rule !== rules[i - 1]);
-        }
-
-        warlordTraits(): Upgrade[] {
-            // List all model warlord traits.
-            let allTraits = this._models.map(m => m._warlordTraits).reduce((acc, val) => acc.concat(val), []);
-            allTraits.push(...this._warlordTraits);
-            // Return the unique list.
-            return allTraits.sort(CompareObj).filter((trait, i, array) => trait.name() !== array[i - 1]?.name());
-        }
-        upgrades(): Upgrade[] {
-            // List all model upgrades.
-            let allUpgrades = this._models.map(m => m._upgrades).reduce((acc, val) => acc.concat(val), []);
-            allUpgrades.push(...this._upgrades);
-            // Return the unique list.
-            return allUpgrades.sort(CompareObj).filter((upgrade, i, array) => upgrade.name() !== array[i - 1]?.name());
-        }
-        reactions(): Upgrade[] {
-            // List all model reactions.
+        reactions(): Reaction[] {
             let allReactions = this._models.map(m => m._reactions).reduce((acc, val) => acc.concat(val), []);
             allReactions.push(...this._reactions);
-            // Return the unique list.
             return allReactions.sort(CompareObj).filter((reaction, i, array) => reaction.name() !== array[i - 1]?.name());
         }
 
+        gambits(): Gambit[] {
+            let allGambits = this._models.map(m => m._gambits).reduce((acc, val) => acc.concat(val), []);
+            allGambits.push(...this._gambits);
+            return allGambits.sort(CompareObj).filter((gambit, i, array) => gambit.name() !== array[i - 1]?.name());
+        }
+
+        upgrades(): Upgrade[] {
+            let allUpgrades = this._models.map(m => m._upgrades).reduce((acc, val) => acc.concat(val), []);
+            allUpgrades.push(...this._upgrades);
+            return allUpgrades.sort(CompareObj).filter((upgrade, i, array) => upgrade.name() !== array[i - 1]?.name());
+        }
+
+        weaponRules(): string[] {
+            const rangedRules = this.rangedWeapons().map(w => w.getSpecialRules()).reduce((acc, val) => acc.concat(val), []);
+            const meleeRules = this.meleeWeapons().map(w => w.getSpecialRules()).reduce((acc, val) => acc.concat(val), []);
+            return [...rangedRules, ...meleeRules].sort().filter((rule, i, rules) => rule !== rules[i - 1]);
+        }
     }
 
     export class Force extends BaseNote {
@@ -476,7 +463,6 @@ export namespace HorusHeresy {
 
     export function CreateRoster(doc: Document): Roster | null {
         if (doc) {
-            // Determine roster type (game system).
             let info = doc.querySelector("roster");
             if (info) {
                 const roster = new Roster();
@@ -486,7 +472,7 @@ export namespace HorusHeresy {
                     roster._name = name;
                 }
                 else {
-                    roster._name = "Horus Heresy Army Roster";
+                    roster._name = "Horus Heresy 3rd Edition Army Roster";
                 }
 
                 ParseRosterPoints(doc, roster);
@@ -510,7 +496,7 @@ export namespace HorusHeresy {
         const which = cost.getAttribute("name");
         const value = cost.getAttribute("value");
         if (which && value) {
-            if (which === "Pts") {
+            if (which === "Point(s)") {
                 costs._points += +value;
             } else {
                 costs.addFreeformValue(which, +value);
@@ -520,14 +506,111 @@ export namespace HorusHeresy {
     }
 
     function ParseForces(doc: XMLDocument, roster: Roster): void {
-        let forcesRoot = doc.querySelectorAll("roster>forces>force");
-        for (let root of forcesRoot) {
-            if (root.hasAttribute("name") && root.hasAttribute("catalogueName")) {
+        // HH3 has a nested force structure:
+        // roster > forces > force ("Crusade Force Organization Chart")
+        //   > selections (Allegiance, Rite of War)
+        //   > forces > force ("Crusade Primary Detachment", "Auxiliary - ...")
+        //     > selections (units)
 
+        let topLevelForces = doc.querySelectorAll("roster>forces>force");
+        for (let topForce of topLevelForces) {
+            if (!topForce.hasAttribute("name") || !topForce.hasAttribute("catalogueName")) continue;
+
+            const catalogueName = topForce.getAttributeNode("catalogueName")?.nodeValue || "";
+
+            // Extract rules from the top-level force
+            const topLevelRules: Map<string, string | null> = new Map();
+            const topRules = topForce.querySelectorAll(":scope>rules>rule");
+            for (let rule of topRules) {
+                ExtractRuleDescription(rule, topLevelRules);
+            }
+
+            // Extract Rite of War rules, gambits, reactions from top-level selections
+            const topLevelReactions: Reaction[] = [];
+            const topLevelGambits: Gambit[] = [];
+            let topSelections = GetImmediateSelections(topForce);
+            for (let selection of topSelections) {
+                let selectionName = selection.getAttribute("name");
+                let selectionType = selection.getAttribute("type");
+                if (selectionType === 'upgrade') {
+                    // Extract rules from upgrade selections (Allegiance, Rite of War)
+                    ExtractRuleFromSelection(selection, topLevelRules);
+                    // Also extract profiles (reactions, gambits) from nested selections
+                    const allProfiles = Array.from(selection.querySelectorAll("profile"));
+                    for (const profile of allProfiles) {
+                        const typeName = profile.getAttribute("typeName")?.trim();
+                        if (typeName === "Reaction") {
+                            topLevelReactions.push(ParseReactionProfile(profile));
+                        } else if (typeName === "Gambit:" || typeName === "Gambit") {
+                            topLevelGambits.push(ParseGambitProfile(profile));
+                        }
+                    }
+                }
+            }
+
+            // Get nested detachment forces
+            const nestedForces = GetImmediateForces(topForce);
+
+            if (nestedForces.length > 0) {
+                // Process each nested detachment
+                let isFirst = true;
+                for (let nestedForce of nestedForces) {
+                    let force = new Force();
+
+                    let which = nestedForce.getAttributeNode("name")?.nodeValue;
+                    let value = nestedForce.getAttributeNode("catalogueName")?.nodeValue;
+
+                    if (which) {
+                        force._name = which;
+                    }
+                    if (value) {
+                        force._catalog = value;
+                    }
+
+                    // Add top-level rules to the first detachment only
+                    if (isFirst && !DuplicateForce(force, roster)) {
+                        for (const [k, v] of topLevelRules.entries()) {
+                            force._rules.set(k, v);
+                        }
+                        isFirst = false;
+                    }
+
+                    // Get rules from the nested force itself
+                    if (!DuplicateForce(force, roster)) {
+                        const rules = GetImmediateRules(nestedForce);
+                        for (let rule of rules) {
+                            ExtractRuleDescription(rule, force._rules);
+                        }
+                    }
+
+                    let selections = GetImmediateSelections(nestedForce);
+                    for (let selection of selections) {
+                        ParseSelection(selection, force);
+                    }
+
+                    // Attach top-level reactions and gambits to each unit in the first detachment
+                    if (roster._forces.length === 0 && (topLevelReactions.length > 0 || topLevelGambits.length > 0)) {
+                        for (let unit of force._units) {
+                            unit._reactions.push(...topLevelReactions);
+                            unit._gambits.push(...topLevelGambits);
+                        }
+                    }
+
+                    // Sort force units by role.
+                    force._units.sort((a: Unit, b: Unit): number => {
+                        if (a._role > b._role) return 1;
+                        else if (a._role == b._role) return 0;
+                        return -1;
+                    });
+
+                    roster._forces.push(force);
+                }
+            } else {
+                // No nested forces - treat as a flat force (like HH2)
                 let force = new Force();
 
-                let which = root.getAttributeNode("name")?.nodeValue;
-                let value = root.getAttributeNode("catalogueName")?.nodeValue;
+                let which = topForce.getAttributeNode("name")?.nodeValue;
+                let value = topForce.getAttributeNode("catalogueName")?.nodeValue;
 
                 if (which) {
                     force._name = which;
@@ -536,20 +619,17 @@ export namespace HorusHeresy {
                     force._catalog = value;
                 }
 
-                // Only include the allegiance rules once.
                 if (!DuplicateForce(force, roster)) {
-                    const rules = root.querySelectorAll("rules>rule");
-                    for (let rule of rules) {
-                        ExtractRuleDescription(rule, force._rules);
+                    for (const [k, v] of topLevelRules.entries()) {
+                        force._rules.set(k, v);
                     }
                 }
 
-                let selections = root.querySelectorAll(":scope>selections>selection");
+                let selections = GetImmediateSelections(topForce);
                 for (let selection of selections) {
                     ParseSelection(selection, force);
                 }
 
-                // Sort force units by role.
                 force._units.sort((a: Unit, b: Unit): number => {
                     if (a._role > b._role) return 1;
                     else if (a._role == b._role) return 0;
@@ -562,16 +642,13 @@ export namespace HorusHeresy {
     }
 
     function ParseSelection(selection: Element, force: Force): void {
-        // What kind of selection is this
         let selectionName = selection.getAttributeNode("name")?.nodeValue;
         if (!selectionName) return;
         let selectionType = selection.getAttributeNode("type")?.nodeValue;
         if (!selectionType) return;
 
-        if (selection.querySelector('profile[typeId="4bb2-cb95-e6c8-5a21"]') || // Unit
-            selection.querySelector('profile[typeId="2fae-b053-3f78-e7b2"]') || // Vehicle
-            selection.querySelector('profile[typeId="75b5-9f7a-156e-6889"]') || // Fortification
-            selection.querySelector('profile[typeId="eeec-bde3-8ee4-35b0"]')) { // Knights or Titans
+        if (selection.querySelector('profile[typeId="a76f-8e23-8c3e-166d"]') || // Profile (Infantry)
+            selection.querySelector('profile[typeId="2a80-eec8-a736-2fe3"]')) {  // Vehicle
             const unit = CreateUnit(selection);
             if (unit) {
                 force._units.push(unit);
@@ -587,7 +664,6 @@ export namespace HorusHeresy {
     }
 
     function ExtractRuleFromSelection(root: Element, map: Map<string, string | null>): void {
-
         const rules = root.querySelectorAll("rules>rule");
         for (const rule of rules) {
             ExtractRuleDescription(rule, map);
@@ -611,7 +687,6 @@ export namespace HorusHeresy {
     }
 
     function ExtractNumberFromParent(root: Element): number {
-        // Get parent node (a selection) to determine model count.
         if (root.parentElement && root.parentElement.parentElement) {
             const parentSelection = root.parentElement.parentElement;
             const countValue = parentSelection.getAttributeNode("number")?.nodeValue;
@@ -619,31 +694,29 @@ export namespace HorusHeresy {
                 return +countValue;
             }
         }
-
         return 0;
     }
 
-    function ParseWeaponProfile(profile: Element): Weapon {
-        const weapon = new Weapon();
+    function ParseRangedWeaponProfile(profile: Element): RangedWeapon {
+        const weapon = new RangedWeapon();
         ExpandBaseNotes(profile, weapon);
         weapon._count = ExtractNumberFromParent(profile);
 
         let chars = profile.querySelectorAll("characteristics>characteristic");
         for (let char of chars) {
             let charName = char.getAttribute("name");
-            if (charName) {
-                if (char.textContent) {
-                    switch (charName) {
-                        case 'Range': weapon._range = char.textContent; break;
-                        case 'Type': weapon._type = char.textContent; break;
-                        case 'Strength': weapon._str = char.textContent; break;
-                        case 'AP': weapon._ap = char.textContent; break;
-                    }
+            if (charName && char.textContent) {
+                switch (charName) {
+                    case 'R': weapon._range = char.textContent; break;
+                    case 'FP': weapon._fp = char.textContent; break;
+                    case 'RS': weapon._rs = char.textContent; break;
+                    case 'AP': weapon._ap = char.textContent; break;
+                    case 'D': weapon._damage = char.textContent; break;
+                    case 'Special Rules': weapon._specialRules = char.textContent; break;
+                    case 'Traits': weapon._traits = char.textContent; break;
                 }
             }
         }
-        // Keep track of the weapon's parent selection for its name, unless the
-        // weapon is directly under the unit's profile.
         const selection = profile.parentElement?.parentElement;
         const selectionName = selection?.getAttribute('name');
         if (selection?.getAttribute('type') === 'upgrade' && selectionName) {
@@ -653,27 +726,26 @@ export namespace HorusHeresy {
         return weapon;
     }
 
-    function ParsePsychicWeaponProfile(profile: Element): Weapon {
-        const weapon = new Weapon();
+    function ParseMeleeWeaponProfile(profile: Element): MeleeWeapon {
+        const weapon = new MeleeWeapon();
         ExpandBaseNotes(profile, weapon);
         weapon._count = ExtractNumberFromParent(profile);
 
         let chars = profile.querySelectorAll("characteristics>characteristic");
         for (let char of chars) {
             let charName = char.getAttribute("name");
-            if (charName) {
-                if (char.textContent) {
-                    switch (charName) {
-                        case 'Range': weapon._range = char.textContent; break;
-                        case 'Type': weapon._type = char.textContent; break;
-                        case 'Strength': weapon._str = char.textContent; break;
-                        case 'AP': weapon._ap = char.textContent; break;
-                    }
+            if (charName && char.textContent) {
+                switch (charName) {
+                    case 'IM': weapon._im = char.textContent; break;
+                    case 'AM': weapon._am = char.textContent; break;
+                    case 'SM': weapon._sm = char.textContent; break;
+                    case 'AP': weapon._ap = char.textContent; break;
+                    case 'D': weapon._damage = char.textContent; break;
+                    case 'Special Rules': weapon._specialRules = char.textContent; break;
+                    case 'Traits': weapon._traits = char.textContent; break;
                 }
             }
         }
-        // Keep track of the weapon's parent selection for its name, unless the
-        // weapon is directly under the unit's profile.
         const selection = profile.parentElement?.parentElement;
         const selectionName = selection?.getAttribute('name');
         if (selection?.getAttribute('type') === 'upgrade' && selectionName) {
@@ -681,6 +753,88 @@ export namespace HorusHeresy {
             weapon._cost = GetSelectionCosts(selection);
         }
         return weapon;
+    }
+
+    function ParseWargearProfile(profile: Element): WargearItem {
+        const gear = new WargearItem();
+        ExpandBaseNotes(profile, gear);
+        gear._count = ExtractNumberFromParent(profile);
+
+        let chars = profile.querySelectorAll("characteristics>characteristic");
+        for (let char of chars) {
+            if (char.textContent) {
+                let charName = char.getAttribute("name");
+                if (charName) {
+                    switch (charName) {
+                        case 'Summary': gear._summary = char.textContent; break;
+                        case 'Description': gear._description = char.textContent; break;
+                    }
+                }
+            }
+        }
+        return gear;
+    }
+
+    function ParseReactionProfile(profile: Element): Reaction {
+        const reaction = new Reaction();
+        ExpandBaseNotes(profile, reaction);
+        reaction._count = ExtractNumberFromParent(profile);
+
+        let chars = profile.querySelectorAll("characteristics>characteristic");
+        for (let char of chars) {
+            if (char.textContent) {
+                let charName = char.getAttribute("name");
+                if (charName) {
+                    switch (charName) {
+                        case 'Summary': reaction._summary = char.textContent; break;
+                        case 'Trigger': reaction._trigger = char.textContent; break;
+                        case 'Cost': reaction._reactionCost = char.textContent; break;
+                        case 'Target': reaction._target = char.textContent; break;
+                        case 'Process': reaction._process = char.textContent; break;
+                    }
+                }
+            }
+        }
+        return reaction;
+    }
+
+    function ParseGambitProfile(profile: Element): Gambit {
+        const gambit = new Gambit();
+        ExpandBaseNotes(profile, gambit);
+        gambit._count = ExtractNumberFromParent(profile);
+
+        let chars = profile.querySelectorAll("characteristics>characteristic");
+        for (let char of chars) {
+            if (char.textContent) {
+                let charName = char.getAttribute("name");
+                if (charName) {
+                    switch (charName) {
+                        case 'Summary': gambit._summary = char.textContent; break;
+                        case 'Description': gambit._description = char.textContent; break;
+                    }
+                }
+            }
+        }
+        return gambit;
+    }
+
+    function ParseTraitProfile(profile: Element): TraitItem {
+        const trait = new TraitItem();
+        ExpandBaseNotes(profile, trait);
+        trait._count = ExtractNumberFromParent(profile);
+
+        let chars = profile.querySelectorAll("characteristics>characteristic");
+        for (let char of chars) {
+            if (char.textContent) {
+                let charName = char.getAttribute("name");
+                if (charName) {
+                    switch (charName) {
+                        case 'Description': trait._description = char.textContent; break;
+                    }
+                }
+            }
+        }
+        return trait;
     }
 
     function ParseUpgradeProfile(profile: Element): Upgrade {
@@ -700,7 +854,6 @@ export namespace HorusHeresy {
                 }
             }
         }
-
         return upgrade;
     }
 
@@ -713,31 +866,85 @@ export namespace HorusHeresy {
         return false;
     }
 
+    // Known non-keyword category names
+    const NON_KEYWORD_CATEGORIES = new Set([
+        'Allegiance',
+        'Army Configuration',
+        'High Command',
+        'Command',
+        'Troops',
+        'Elites',
+        'Fast Attack',
+        'Heavy Assault',
+        'Recon',
+        'Retinue',
+        'Transport',
+        'Heavy Transport',
+        'War-engine',
+        'Armour',
+        'Rewards of Treachery',
+        'Support',
+        'Open Beta Release',
+        'Illegal Units',
+        // Model type categories
+        'Infantry Model Type',
+        'Vehicle Model Type',
+        'Walker Model Type',
+        'Cavalry Model Type',
+        'Command Model Sub-type',
+        'Sergeant Model Sub-Type',
+        'Champion Model Sub-Type',
+        'Heavy Model Sub-Type',
+        'Transport Model Sub-Type',
+        'Antigrav Model Sub-Type',
+        'Malefic Sub-type',
+    ]);
+
     function LookupRole(roleText: string): UnitRole {
+        if (roleText.startsWith('Support')) return UnitRole.SUPPORT;
+        if (roleText.startsWith('Recon')) return UnitRole.RECON;
+        if (roleText.startsWith('Heavy Transport')) return UnitRole.HEAVY_TRANSPORT;
+        if (roleText.startsWith('War-engine')) return UnitRole.WAR_ENGINE;
+
         switch (roleText) {
-            case 'HQ:': return UnitRole.HQ;
-            case 'Troops:': return UnitRole.TR;
-            case 'Elites:': return UnitRole.EL;
-            case 'Fast Attack:': return UnitRole.FA;
-            case 'Heavy Support:': return UnitRole.HS;
-            case 'Flyer': return UnitRole.FL;
-            case 'Transport Sub-type:': return UnitRole.DT;
-            case 'Fortification:': return UnitRole.FT;
-            case 'Lords of War:': return UnitRole.LW;
-            case 'Primarch:': return UnitRole.PR
+            case 'High Command': return UnitRole.HIGH_COMMAND;
+            case 'Command': return UnitRole.COMMAND;
+            case 'Troops': return UnitRole.TROOPS;
+            case 'Elites': return UnitRole.ELITES;
+            case 'Fast Attack': return UnitRole.FAST_ATTACK;
+            case 'Heavy Assault': return UnitRole.HEAVY_ASSAULT;
+            case 'Retinue': return UnitRole.RETINUE;
+            case 'Transport': return UnitRole.TRANSPORT;
+            case 'Armour': return UnitRole.ARMOUR;
+            case 'Rewards of Treachery': return UnitRole.REWARDS_OF_TREACHERY;
         }
         return UnitRole.NONE;
     }
 
     function InternalKeyword(kw: string): boolean {
-        return kw.endsWith(':');
+        if (NON_KEYWORD_CATEGORIES.has(kw)) return true;
+        // Also filter out categories that start with known role prefixes with variants
+        if (kw.startsWith('Support -')) return true;
+        if (kw.startsWith('Recon -')) return true;
+        if (kw.startsWith('Heavy Transport -')) return true;
+        if (kw.startsWith('War-engine -')) return true;
+        // Filter out Prime-prefixed categories
+        if (kw.startsWith('Prime ')) return true;
+        // Filter out EotL categories
+        if (kw.startsWith('EotL -')) return true;
+        // Filter out categories ending with common suffixes
+        if (kw.endsWith('Only')) return true;
+        if (kw.startsWith('+')) return true;
+        if (kw.startsWith('Free ')) return true;
+        if (kw.startsWith('No default')) return true;
+        if (kw.startsWith('Officer of')) return true;
+        if (kw.startsWith('has ')) return true;
+        return false;
     }
 
     function CreateUnit(root: Element): Unit | null {
         let unit: Unit = new Unit();
         const unitName = ExpandBaseNotes(root, unit);
-
-        // Selections
 
         // Categories
         let categories = root.querySelectorAll("categories>category");
@@ -751,7 +958,6 @@ export namespace HorusHeresy {
                 }
                 else {
                     if (!InternalKeyword(catName)) {
-                        // Keyword
                         unit._keywords.add(catName);
                     }
                 }
@@ -760,36 +966,33 @@ export namespace HorusHeresy {
 
         const seenProfiles: Element[] = [];
 
-        // First, find model stats. These have typeName="Unit", "Vehicle", "Fortification" or "Knights and Titans".
-        const modelStatsProfiles = Array.from(root.querySelectorAll('profile[typeId="4bb2-cb95-e6c8-5a21"],profile[typeId="2fae-b053-3f78-e7b2"],profile[typeId="75b5-9f7a-156e-6889"],profile[typeId="eeec-bde3-8ee4-35b0"]'));
+        // First, find model stats. These have typeName="Profile" or "Vehicle".
+        const modelStatsProfiles = Array.from(root.querySelectorAll('profile[typeId="a76f-8e23-8c3e-166d"],profile[typeId="2a80-eec8-a736-2fe3"]'));
         ParseModelStatsProfiles(modelStatsProfiles, unit, unitName);
         seenProfiles.push(...modelStatsProfiles);
 
-        // Next, look for selections with models. These usually have type="model",
-        // but may have type="upgrade" containing a profile of type="Unit".
+        // Next, look for selections with models.
         const modelSelections = [];
         if (root.getAttribute('type') === 'model') {
             modelSelections.push(root);  // Single-model unit.
         } else {
             const immediateSelections = GetImmediateSelections(root);
             for (const selection of immediateSelections) {
-                if (selection.getAttribute('type') === 'model' || HasImmediateProfileWithTypeName(selection, 'Unit') || HasImmediateProfileWithTypeName(selection, 'Fortification') ||
-                    HasImmediateProfileWithTypeName(selection, 'Vehicle') || HasImmediateProfileWithTypeName(selection, 'Knights and Titans')) {
+                if (selection.getAttribute('type') === 'model' || HasImmediateProfileWithTypeName(selection, 'Profile') ||
+                    HasImmediateProfileWithTypeName(selection, 'Vehicle')) {
                     modelSelections.push(selection);
                 }
             }
-            // Some units are under a root selection with type="upgrade".
             if (modelSelections.length === 0) {
                 modelSelections.push(...Array.from(root.querySelectorAll('selection[type="model"]')));
             }
-            // Some single-model units have type="unit" or type="upgrade".
-            if (modelSelections.length === 0 && HasImmediateProfileWithTypeName(root, 'Unit') || HasImmediateProfileWithTypeName(root, 'Fortification') ||
-                HasImmediateProfileWithTypeName(root, 'Vehicle') || HasImmediateProfileWithTypeName(root, 'Knights and Titans')) {
+            if (modelSelections.length === 0 && (HasImmediateProfileWithTypeName(root, 'Profile') ||
+                HasImmediateProfileWithTypeName(root, 'Vehicle'))) {
                 modelSelections.push(root);
             }
         }
 
-        // Now, parse the model -- profiles for stats, and selections for upgrades.
+        // Now, parse each model selection
         for (const modelSelection of modelSelections) {
             const profiles = Array.from(modelSelection.querySelectorAll("profiles>profile"));
             const unseenProfiles = profiles.filter((e: Element) => !seenProfiles.includes(e));
@@ -800,17 +1003,9 @@ export namespace HorusHeresy {
             model._count = Number(modelSelection.getAttribute("number") || 1);
             unit._models.push(model);
 
-            // Find stats for all profiles (weapons, powers, wargear, etc).
             ParseProfiles(profiles, model);
 
-            // Find all upgrades on the model. This may include weapons that were
-            // parsed from profiles (above), so dedupe those in nameAndGear().
             for (const upgradeSelection of modelSelection.querySelectorAll('selections>selection[type="upgrade"]')) {
-                // Ignore selections without abilities but with sub-selection upgrades,
-                // since those sub-selections will be picked up individually.
-                //if (upgradeSelection.querySelector('selections>selection[type="upgrade"]')
-                //    && !HasImmediateProfileWithTypeName(upgradeSelection, 'Abilities')) continue;
-
                 let upgradeName = upgradeSelection.getAttribute('name');
                 if (upgradeName) {
                     const upgrade = new Upgrade();
@@ -838,14 +1033,14 @@ export namespace HorusHeresy {
             }
         }
 
-        // Only match costs->costs associated with the unit and not its children (model and weapon) costs.
+        // Only match costs associated with the unit itself
         let costs = root.querySelectorAll("costs>cost");
         for (let cost of costs) {
             if (cost.hasAttribute("name") && cost.hasAttribute("value")) {
                 let which = cost.getAttributeNode("name")?.nodeValue;
                 let value = cost.getAttributeNode("value")?.nodeValue;
                 if (value) {
-                    if (which == "Pts") {
+                    if (which == "Point(s)") {
                         unit._points += +value;
                     }
                 }
@@ -887,16 +1082,7 @@ export namespace HorusHeresy {
         }
     }
 
-    export function CompareWeapon(a: Weapon, b: Weapon): number {
-        const aType = a._type.startsWith('Grenade') ? 2 : a._type.startsWith('Melee') ? 1 : 0;
-        const bType = b._type.startsWith('Grenade') ? 2 : b._type.startsWith('Melee') ? 1 : 0;
-        return (aType - bType) || a.name().localeCompare(b.name());
-    }
-
     function GetSelectionCosts(selection: Element): Costs {
-        // querySelectorAll(':scope > tagname') doesn't work with jsdom, so we hack
-        // around it: https://github.com/jsdom/jsdom/issues/2998
-
         const costs = new Costs()
         for (const child of selection.children) {
             if (child.tagName === 'costs') {
@@ -914,7 +1100,7 @@ export namespace HorusHeresy {
             const profileType = profile.getAttribute("typeName");
             if (!profileName || !profileType) return;
 
-            if (profileType.trim() === "Unit") {
+            if (profileType.trim() === "Profile") {
                 const model = new Model();
                 model._name = profileName;
                 unit._modelStats.push(model);
@@ -926,11 +1112,10 @@ export namespace HorusHeresy {
                     const charName = char.getAttribute("name");
                     if (!charName) continue;
 
-                    //console.log("Model " + profileName + " Characteristic: " + charName + " Value: " + char.textContent);
                     if (char.textContent) {
                         switch (charName) {
-                            case 'Unit Type': model._type = char.textContent; break;
-                            case 'Move': model._move = ConvertToInches(char.textContent); break;
+                            case 'Type': model._type = char.textContent; break;
+                            case 'M': model._move = ConvertToInches(char.textContent); break;
                             case 'WS': model._ws = +char.textContent; break;
                             case 'BS': model._bs = +char.textContent; break;
                             case 'S': model._str = +char.textContent; break;
@@ -938,38 +1123,12 @@ export namespace HorusHeresy {
                             case 'W': model._wounds = +char.textContent; break;
                             case 'I': model._initiative = +char.textContent; break;
                             case 'A': model._attacks = +char.textContent; break;
-                            case 'Ld': model._leadership = +char.textContent; break;
-                            case 'Save': model._save = char.textContent; break;
-                        }
-                    }
-                }
-            }
-            else if (profileType.trim() === "Knights and Titans") {
-                let knight = new Knight();
-                knight._name = profileName;
-                unit._modelStats.push(knight);
-
-                ExpandBaseNotes(profile, knight);
-
-                const chars = profile.querySelectorAll("characteristics>characteristic");
-                for (const char of chars) {
-                    const charName = char.getAttribute("name");
-                    if (!charName) continue;
-
-                    //console.log("Knight " + profileName);
-                    if (char.textContent) {
-                        switch (charName) {
-                            case 'Unit Type': knight._type = char.textContent; break;
-                            case 'Move': knight._move = ConvertToInches(char.textContent); break;
-                            case 'WS': knight._ws = +char.textContent; break;
-                            case 'BS': knight._bs = +char.textContent; break;
-                            case 'S': knight._str = +char.textContent; break;
-                            case 'Front': knight._front = +char.textContent; break;
-                            case 'Side': knight._side = +char.textContent; break;
-                            case 'Rear': knight._rear = +char.textContent; break;
-                            case 'I': knight._initiative = +char.textContent; break;
-                            case 'A': knight._attacks = +char.textContent; break;
-                            case 'HP': knight._hp = +char.textContent; break;
+                            case 'LD': model._leadership = +char.textContent; break;
+                            case 'CL': model._cool = +char.textContent; break;
+                            case 'WP': model._willpower = +char.textContent; break;
+                            case 'IN': model._intelligence = +char.textContent; break;
+                            case 'SAV': model._save = char.textContent; break;
+                            case 'INV': model._invuln = char.textContent; break;
                         }
                     }
                 }
@@ -987,46 +1146,17 @@ export namespace HorusHeresy {
                     const charName = char.getAttributeNode("name")?.nodeValue;
                     if (!charName) continue;
 
-                    //console.log("Vehicle " + profileName);
                     if (char.textContent) {
                         switch (charName) {
-                            case 'Unit Type': vehicle._type = char.textContent; break;
-                            case 'Move': vehicle._move = ConvertToInches(char.textContent); break;
+                            case 'Type': vehicle._type = char.textContent; break;
+                            case 'M': vehicle._move = ConvertToInches(char.textContent); break;
                             case 'BS': vehicle._bs = +char.textContent; break;
-                            case 'Front': vehicle._front = +char.textContent; break;
-                            case 'Side': vehicle._side = +char.textContent; break;
-                            case 'Rear': vehicle._rear = +char.textContent; break;
+                            case 'Front Armour': vehicle._front = +char.textContent; break;
+                            case 'Side Armour': vehicle._side = +char.textContent; break;
+                            case 'Rear Armour': vehicle._rear = +char.textContent; break;
                             case 'HP': vehicle._hp = +char.textContent; break;
                             case 'Transport Capacity': vehicle._capacity = char.textContent; break;
                             case 'Access Points': vehicle._accessPoints = char.textContent; break;
-                        }
-                    }
-                }
-            }
-            else if (profileType.trim() === "Fortification") {
-                let fort = new Fortification();
-                fort._name = profileName;
-
-                unit._modelStats.push(fort);
-
-                ExpandBaseNotes(profile, fort);
-
-                const chars = profile.querySelectorAll("characteristics>characteristic");
-                for (const char of chars) {
-                    const charName = char.getAttributeNode("name")?.nodeValue;
-                    if (!charName) continue;
-
-                    //console.log("Fortification " + profileName);
-                    if (char.textContent) {
-                        switch (charName) {
-                            case 'Unit Type': fort._type = char.textContent; break;
-                            case 'BS': fort._bs = char.textContent; break;
-                            case 'Front': fort._front = +char.textContent; break;
-                            case 'Side': fort._side = +char.textContent; break;
-                            case 'Rear': fort._rear = +char.textContent; break;
-                            case 'HP': fort._hp = +char.textContent; break;
-                            case 'Transport Capacity': fort._capacity = char.textContent; break;
-                            case 'Fire Points': fort._firePoints = char.textContent; break;
                         }
                     }
                 }
@@ -1041,32 +1171,28 @@ export namespace HorusHeresy {
             if (!profileName || !typeName) continue;
 
             typeName = typeName.trim();
-            if ((typeName === "Unit") || (typeName === "Vehicle") ||
-                (typeName === "Knights and Titans") || ((typeName === "Fortification")) ||
+            if ((typeName === "Profile") || (typeName === "Vehicle") ||
                 (profile.getAttribute("type") === "model")) {
                 // Do nothing; these were already handled.
-            } else if (typeName === "Weapon") {
-                const weapon = ParseWeaponProfile(profile);
-                owner._weapons.push(weapon);
-            } else if (typeName === "Psychic Weapon") {
-                const weapon = ParsePsychicWeaponProfile(profile);
-                owner._psychicWeapons.push(weapon);
-            } else if (typeName === "Psychic Power") {
-                const power = ParseUpgradeProfile(profile);
-                owner._psychicPowers.push(power);
-            } else if (typeName === "Wargear Item") {
-                const gear = ParseUpgradeProfile(profile);
+            } else if (typeName === "Ranged Weapon") {
+                const weapon = ParseRangedWeaponProfile(profile);
+                owner._rangedWeapons.push(weapon);
+            } else if (typeName === "Melee Weapon") {
+                const weapon = ParseMeleeWeaponProfile(profile);
+                owner._meleeWeapons.push(weapon);
+            } else if (typeName === "Wargear") {
+                const gear = ParseWargearProfile(profile);
                 owner._wargear.push(gear);
-            } else if (typeName === "Warlord Trait") {
-                const trait = ParseUpgradeProfile(profile);
-                owner._warlordTraits.push(trait);
-            } else if (typeName === "Reactions") {
-                const reaction = ParseUpgradeProfile(profile);
+            } else if (typeName === "Reaction") {
+                const reaction = ParseReactionProfile(profile);
                 owner._reactions.push(reaction);
+            } else if (typeName === "Gambit:" || typeName === "Gambit") {
+                const gambit = ParseGambitProfile(profile);
+                owner._gambits.push(gambit);
+            } else if (typeName === "Traits") {
+                // Traits profiles - often empty description, skip for now
             } else {
                 console.log("Unhandled model/unit profile " + profileName + " of type " + typeName + ".");
-                //const upgrade = ParseUpgradeProfile(profile);
-                //model._upgrades.push(upgrade);
             }
         }
     }
@@ -1080,8 +1206,6 @@ export namespace HorusHeresy {
     }
 
     function GetImmediateSelections(root: Element): Element[] {
-        // querySelectorAll(':scope > tagname') doesn't work with jsdom, so we hack
-        // around it: https://github.com/jsdom/jsdom/issues/2998
         const selections = [];
         for (const child of root.children) {
             if (child.tagName === 'selections') {
@@ -1095,9 +1219,35 @@ export namespace HorusHeresy {
         return selections;
     }
 
+    function GetImmediateForces(root: Element): Element[] {
+        const forces = [];
+        for (const child of root.children) {
+            if (child.tagName === 'forces') {
+                for (const subChild of child.children) {
+                    if (subChild.tagName === 'force') {
+                        forces.push(subChild);
+                    }
+                }
+            }
+        }
+        return forces;
+    }
+
+    function GetImmediateRules(root: Element): Element[] {
+        const rules = [];
+        for (const child of root.children) {
+            if (child.tagName === 'rules') {
+                for (const subChild of child.children) {
+                    if (subChild.tagName === 'rule') {
+                        rules.push(subChild);
+                    }
+                }
+            }
+        }
+        return rules;
+    }
+
     function HasImmediateProfileWithTypeName(root: Element, typeName: string): boolean {
-        // querySelectorAll(':scope > tagname') doesn't work with jsdom, so we hack
-        // around it: https://github.com/jsdom/jsdom/issues/2998
         for (const child of root.children) {
             if (child.tagName === 'profiles') {
                 for (const subChild of child.children) {
@@ -1110,4 +1260,4 @@ export namespace HorusHeresy {
         return false;
     }
 
-} // namespace HorusHeresy
+} // namespace HorusHeresy3
