@@ -54,3 +54,15 @@ To (re)generate PrettyScribe tests:
 
     $ npm run writetests
 
+### Docker
+
+To run inside a sandboxed [Docker](https://www.docker.com/) container:
+
+    $ docker compose up
+
+Tests can be executed with:
+
+    $ docker compose run --rm web npm test
+
+Tests can be (re)generated with:
+    $ docker compose run --rm web npm run writetests

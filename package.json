@@ -23,11 +23,11 @@
     "vite": "^8.0.16"
   },
   "scripts": {
-    "test": "jasmine --config=jasmine.json",
+    "test": "NODE_OPTIONS=--no-experimental-strip-types jasmine --config=jasmine.json",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "writetests": "ts-node tools/write40kRosterExpectation.ts"
+    "writetests": "ts-node --project tsconfig.test.json tools/write40kRosterExpectation.ts"
   },
   "author": "Rick Weyrauch",
   "license": "ISC"
