@@ -23,7 +23,7 @@
     "vite": "^8.0.16"
   },
   "scripts": {
-    "test": "NODE_OPTIONS=--no-experimental-strip-types jasmine --config=jasmine.json",
+    "test": "jasmine --config=jasmine.json",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
