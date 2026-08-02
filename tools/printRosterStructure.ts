@@ -2,7 +2,7 @@
  * Utility script to render Roster file contents on the command line.
  *
  * Run with:
- *   $ npx ts-node tools/printRosterStructure.ts [-v] 'path/to/file'
+ *   $ npx tsx tools/printRosterStructure.ts [-v] 'path/to/file'
  * 
  * Options:
  *   -v: verbose; print out everything in the roster file

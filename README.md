@@ -54,3 +54,24 @@ To (re)generate PrettyScribe tests:
 
     $ npm run writetests
 
+### Docker
+
+To run inside a sandboxed [Docker](https://www.docker.com/) container:
+
+    $ docker compose up
+
+Tests can be executed with:
+
+    $ docker compose run --rm web npm test
+
+Tests can be (re)generated with:
+    $ docker compose run --rm web npm run writetests
+
+#### Package dependencies
+
+The Docker container needs `package-lock.json` to match `package.json`. If you only edit `package.json`, the build will fail.
+
+To update `package-lock.json`, first run `docker compose up` with the current `package.json`, then add your new dependencies to `package.json` and run:
+    $ docker compose run --rm web npm install
+    $ docker compose down -v --rmi all
+    $ docker compose up

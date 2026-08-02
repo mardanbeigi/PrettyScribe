@@ -12,9 +12,6 @@
     "**Spec.ts",
     "*/**Spec.ts"
   ],
-  "helpers": [
-    "helpers/jasmine-typescript-helper.js"
-  ],
   "stopSpecOnExpectationFailure": false,
   "random": true
 }

@@ -18,16 +18,16 @@
     "jasmine": "^4.0.2",
     "jasmine-spec-reporter": "^7.0.0",
     "jsdom": "^28.1.0",
-    "ts-node": "^10.4.0",
+    "tsx": "^4.19.2",
     "typescript": "^4.5.5",
     "vite": "^8.0.16"
   },
   "scripts": {
-    "test": "jasmine --config=jasmine.json",
+    "test": "NODE_OPTIONS=\"--import tsx\" jasmine --config=jasmine.json",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "writetests": "ts-node tools/write40kRosterExpectation.ts"
+    "writetests": "tsx tools/write40kRosterExpectation.ts"
   },
   "author": "Rick Weyrauch",
   "license": "ISC"

@@ -1,0 +1,29 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      # Avoid `.:/app` and mount files explicitly (read-only except tests under
+      # spec/) to prevent /app/node_modules from writing to host directory
+      - ./assets:/app/assets:ro
+      - ./css:/app/css:ro
+      - ./spec:/app/spec:rw
+      - ./src:/app/src:ro
+      - ./test:/app/test:ro
+      - ./tools:/app/tools:ro
+      # HTML files
+      - ./about.html:/app/about.html:ro
+      - ./help.html:/app/help.html:ro
+      - ./index.html:/app/index.html:ro
+      # JSON files
+      - ./jasmine.json:/app/jasmine.json:ro
+      - ./package.json:/app/package.json:ro
+      - ./package-lock.json:/app/package-lock.json:rw
+      - ./tsconfig.json:/app/tsconfig.json:ro
+      # Config files
+      - ./vite.config.ts:/app/vite.config.ts:ro
+    environment:
+      - NODE_ENV=development
