@@ -2,7 +2,7 @@
  * Prints the structure of a Rosterizer registry file. 
  *
  * Run with:
- *   $ npx ts-node tools/printRegistryStructure.ts 'path/to/file'
+ *   $ npx tsx tools/printRegistryStructure.ts 'path/to/file'
  */
 
 import fs from "fs";

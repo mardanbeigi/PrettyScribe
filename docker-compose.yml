@@ -21,9 +21,8 @@ services:
       # JSON files
       - ./jasmine.json:/app/jasmine.json:ro
       - ./package.json:/app/package.json:ro
-      - ./package-lock.json:/app/package-lock.json:ro
+      - ./package-lock.json:/app/package-lock.json:rw
       - ./tsconfig.json:/app/tsconfig.json:ro
-      - ./tsconfig.test.json:/app/tsconfig.test.json:ro
       # Config files
       - ./vite.config.ts:/app/vite.config.ts:ro
     environment:

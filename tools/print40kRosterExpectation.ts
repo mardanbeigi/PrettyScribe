@@ -2,7 +2,7 @@
  * Utility script to render Jasmine-stype expect() statements for a roster.
  *
  * Run with:
- *   $ npx ts-node tools/print40kRosterExpectation.ts 'path/to/file'
+ *   $ npx tsx tools/print40kRosterExpectation.ts 'path/to/file'
  */
 
 import { getRosterExpectation } from "./rosterExpectation40k";
